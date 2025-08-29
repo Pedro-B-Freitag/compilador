@@ -13,15 +13,15 @@ public class MainApp extends JFrame {
     private JTextArea mensagens;
     private JLabel statusBar;
     private File arquivoAtual;
+    private String equipeNomes = "Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva";
 
     public MainApp() {
         setTitle("Compilador - Interface");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1500, 800);            // item 1
-        setResizable(false);           // item 1
+        setSize(1500, 800);
+        setResizable(false);
         setLocationRelativeTo(null);
 
-        // === Barra de ferramentas (70px) === item 2 e 9
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.setPreferredSize(new Dimension(1500, 70));
@@ -51,58 +51,50 @@ public class MainApp extends JFrame {
         toolbar.addSeparator(new Dimension(10, 0));
         toolbar.add(equipe);
 
-        // === Editor com NumberedBorder (itens 4 e 5) ===
         editor = new JTextArea();
         editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
-        editor.setLineWrap(false); // sem quebra automática para aparecer barra horizontal
-        editor.setBorder(new NumberedBorder()); // <— usa sua classe
+        editor.setLineWrap(false);
+        editor.setBorder(new NumberedBorder());
         JScrollPane spEditor = new JScrollPane(
                 editor,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS // barras SEMPRE visíveis
+                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
         );
 
-        // === Área de mensagens (itens 6 e 7) ===
         mensagens = new JTextArea();
-        mensagens.setEditable(false); // item 6
+        mensagens.setEditable(false);
         mensagens.setLineWrap(false);
         JScrollPane spMsgs = new JScrollPane(
                 mensagens,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS // barras SEMPRE visíveis
+                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
         );
 
-        // === Split vertical ajustável (item 3) ===
         JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, spEditor, spMsgs);
-        split.setResizeWeight(0.75); // 75% editor / 25% mensagens
+        split.setResizeWeight(0.75);
         split.setDividerSize(8);
 
-        // === Barra de status (25px) — item 2 e 8 ===
         statusBar = new JLabel(" ");
         JPanel status = new JPanel(new BorderLayout());
         status.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
         status.setPreferredSize(new Dimension(1500, 25));
         status.add(statusBar, BorderLayout.WEST);
 
-        // === Layout raiz ===
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(split, BorderLayout.CENTER);
         getContentPane().add(status, BorderLayout.SOUTH);
 
-        // === Ações dos botões (itens 10–15) ===
         novo.addActionListener(e -> acaoNovo());
         abrir.addActionListener(e -> acaoAbrir());
         salvar.addActionListener(e -> acaoSalvar());
-        copiar.addActionListener(e -> editor.copy());    // item 13
-        colar.addActionListener(e -> editor.paste());    // item 13
-        recortar.addActionListener(e -> editor.cut());   // item 13
+        copiar.addActionListener(e -> editor.copy());
+        colar.addActionListener(e -> editor.paste());
+        recortar.addActionListener(e -> editor.cut());
         compilar.addActionListener(e -> mensagens.setText(
-                "Compilação de programas ainda não foi implementada.")); // item 14
-        equipe.addActionListener(e -> mensagens.setText(
-                "Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva")); // item 15
+                "Compilação de programas ainda não foi implementada."));
+        equipe.addActionListener(e -> mensagens.setText(equipeNomes));
 
-        // === Atalhos de teclado (item 9/13/14/15) ===
         InputMap im = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = getRootPane().getActionMap();
 
@@ -133,14 +125,14 @@ public class MainApp extends JFrame {
             mensagens.setText("Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva"); }});
     }
 
-    private void acaoNovo() { // item 10
+    private void acaoNovo() {
         editor.setText("");
         mensagens.setText("");
         statusBar.setText(" ");
         arquivoAtual = null;
     }
 
-    private void acaoAbrir() { // item 11
+    private void acaoAbrir() {
         JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new FileNameExtensionFilter("Arquivos de Texto (*.txt)", "txt"));
         int res = fc.showOpenDialog(this);
@@ -153,17 +145,16 @@ public class MainApp extends JFrame {
                 while ((line = r.readLine()) != null) sb.append(line).append(System.lineSeparator());
                 editor.setText(sb.toString());
                 mensagens.setText("");
-                statusBar.setText(f.getAbsolutePath()); // atualiza barra de status
+                statusBar.setText(f.getAbsolutePath());
                 arquivoAtual = f;
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, "Erro ao abrir: " + ex.getMessage(),
                         "Erro", JOptionPane.ERROR_MESSAGE);
             }
         }
-        // se cancelar, mantém tudo como estava (conforme enunciado)
     }
 
-    private void acaoSalvar() { // item 12
+    private void acaoSalvar() {
         try {
             if (arquivoAtual == null) {
                 JFileChooser fc = new JFileChooser();
@@ -180,7 +171,7 @@ public class MainApp extends JFrame {
                     w.write(editor.getText());
                 }
                 mensagens.setText("");
-                statusBar.setText(f.getAbsolutePath()); // atualiza (caso novo)
+                statusBar.setText(f.getAbsolutePath());
                 arquivoAtual = f;
             } else {
                 try (BufferedWriter w = new BufferedWriter(
@@ -188,7 +179,6 @@ public class MainApp extends JFrame {
                     w.write(editor.getText());
                 }
                 mensagens.setText("");
-                // mantém status bar como está (mesmo caminho) — "manter a barra de status"
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Erro ao salvar: " + ex.getMessage(),
