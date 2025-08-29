@@ -130,7 +130,7 @@ public class MainApp extends JFrame {
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "equipe");
         am.put("equipe", new AbstractAction() { public void actionPerformed(ActionEvent e) {
-            mensagens.setText("Equipe de Desenvolvimento:\nPedro Bosini Freitag"); }});
+            mensagens.setText("Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva"); }});
     }
 
     private void acaoNovo() { // item 10
