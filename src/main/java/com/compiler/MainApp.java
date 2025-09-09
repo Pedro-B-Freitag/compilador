@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import com.compiler.utils.*;
 
 public class MainApp extends JFrame {
 
@@ -14,6 +15,7 @@ public class MainApp extends JFrame {
     private JLabel statusBar;
     private File arquivoAtual;
     private String equipeNomes = "Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva";
+
 
     public MainApp() {
         setTitle("Compilador - Interface");
@@ -91,8 +93,7 @@ public class MainApp extends JFrame {
         copiar.addActionListener(e -> editor.copy());
         colar.addActionListener(e -> editor.paste());
         recortar.addActionListener(e -> editor.cut());
-        compilar.addActionListener(e -> mensagens.setText(
-                "Compilação de programas ainda não foi implementada."));
+        compilar.addActionListener(e -> analiseLexica());
         equipe.addActionListener(e -> mensagens.setText(equipeNomes));
 
         InputMap im = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -117,8 +118,18 @@ public class MainApp extends JFrame {
         am.put("recortar", new AbstractAction() { public void actionPerformed(ActionEvent e) { editor.cut(); }});
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0), "compilar");
-        am.put("compilar", new AbstractAction() { public void actionPerformed(ActionEvent e) {
-            mensagens.setText("Compilação de programas ainda não foi implementada."); }});
+        am.put("compilar", new AbstractAction() {
+            
+            public void actionPerformed(ActionEvent e) {
+                analiseLexica();
+            }
+        });
+
+
+
+
+
+
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "equipe");
         am.put("equipe", new AbstractAction() { public void actionPerformed(ActionEvent e) {
@@ -202,7 +213,112 @@ public class MainApp extends JFrame {
         return b;
     }
 
+    public void analiseLexica(){
+        Lexico lexico = new Lexico();
+
+        lexico.setInput(editor.getText());
+
+        try {
+            Token t = null;
+            mensagens.setText(""); 
+            //revisar aqui
+            int linha = 1;
+            while ( (t = lexico.nextToken()) != null ) {                
+                if (t.equals("\n")){
+                    linha ++;
+                }
+
+                mensagens.append(t.getLexeme() + " - id:" + classificaToken(t.getId()) + " - pos:" + linha + "\n");
+                // só escreve o lexema, necessário escrever t.getId, t.getPosition()
+            
+                // t.getId () - retorna o identificador da classe (ver Constants.java) 
+                // necessário adaptar, pois deve ser apresentada a classe por extenso
+                // MUDAR ID PELO NOME EXTENSO USANDO SWITCH CASE
+            
+                // t.getPosition () - retorna a posição inicial do lexema no editor 
+                // necessário adaptar para mostrar a linha	
+            
+
+                // esse código apresenta os tokens enquanto não ocorrer erro
+                // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro,
+                // necessário adaptar para atender o que foi solicitado		   
+            }
+        }
+        
+        catch ( LexicalError f ) {  // tratamento de erros
+            mensagens.setText(f.getMessage() + " em " + f.getPosition()); 
+        
+            // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (ver ScannerConstants.java)
+            // necessário adaptar conforme o enunciado da parte 2
+            
+            // e.getPosition() - retorna a posição inicial do erro 
+            // necessário adaptar para mostrar a linha  
+            } 
+    }
+
+
+    public String classificaToken(int token) {
+    
+        switch (token) {
+            
+            case Constants.t_identificador:
+                return "identificador";
+            
+            case Constants.t_cint:
+                return "constante_int";
+            case Constants.t_cfloat:
+                return "constante_float";
+            case Constants.t_cstring:
+                return "constante_string";
+            
+            case Constants.t_pr_add:
+            case Constants.t_pr_and:
+            case Constants.t_pr_begin:
+            case Constants.t_pr_bool:
+            case Constants.t_pr_count:
+            case Constants.t_pr_delete:
+            case Constants.t_pr_do:
+            case Constants.t_pf_elemenetof:
+            case Constants.t_pr_else:
+            case Constants.t_pr_end:
+            case Constants.t_pr_false:
+            case Constants.t_pr_float:
+            case Constants.t_pr_if:
+            case Constants.t_pr_int:
+            case Constants.t_pr_list:
+            case Constants.t_pr_not:
+            case Constants.t_pr_or:
+            case Constants.t_pr_print:
+            case Constants.t_pr_read:
+            case Constants.t_pr_size:
+            case Constants.t_pr_string:
+            case Constants.t_pr_true:
+            case Constants.t_pr_until:
+                return "palavra_reservada";
+        
+            case Constants.t_TOKEN_29: // (
+            case Constants.t_TOKEN_30: // )
+            case Constants.t_TOKEN_31: // +
+            case Constants.t_TOKEN_32: // -
+            case Constants.t_TOKEN_33: // *
+            case Constants.t_TOKEN_34: // /
+            case Constants.t_TOKEN_35: // ==
+            case Constants.t_TOKEN_36: // ~=
+            case Constants.t_TOKEN_37: // <
+            case Constants.t_TOKEN_38: // >
+            case Constants.t_TOKEN_39: // =
+            case Constants.t_TOKEN_40: // <-
+            case Constants.t_TOKEN_41: // ;
+            case Constants.t_TOKEN_42: // ,
+                return "simbolo_especial";
+
+            default:
+                return "token_desconhecido";
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MainApp().setVisible(true));
-    }
+    }    
+
 }
