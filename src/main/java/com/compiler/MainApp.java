@@ -222,13 +222,12 @@ public class MainApp extends JFrame {
             Token t = null;
             mensagens.setText(""); 
             //revisar aqui
-            int linha = 1;
-            while ( (t = lexico.nextToken()) != null ) {                
-                if (t.equals("\n")){
-                    linha ++;
-                }
+            while ( (t = lexico.nextToken()) != null ) {          
+
+                int linha = getLinha(editor.getText(), t.getPosition());
 
                 mensagens.append(t.getLexeme() + " - id:" + classificaToken(t.getId()) + " - pos:" + linha + "\n");
+                
                 // só escreve o lexema, necessário escrever t.getId, t.getPosition()
             
                 // t.getId () - retorna o identificador da classe (ver Constants.java) 
@@ -246,7 +245,9 @@ public class MainApp extends JFrame {
         }
         
         catch ( LexicalError f ) {  // tratamento de erros
-            mensagens.setText(f.getMessage() + " em " + f.getPosition()); 
+            int linhaErro = getLinha(editor.getText(), f.getPosition());
+            mensagens.setText(f.getMessage() + " na linha " + linhaErro);
+
         
             // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (ver ScannerConstants.java)
             // necessário adaptar conforme o enunciado da parte 2
@@ -316,6 +317,18 @@ public class MainApp extends JFrame {
                 return "token_desconhecido";
         }
     }
+
+    // Encontrar Linha
+    private int getLinha(String texto, int posicao) {
+    int linha = 1;
+    for (int i = 0; i < posicao && i < texto.length(); i++) {
+        if (texto.charAt(i) == '\n') {
+            linha++;
+        }
+    }
+    return linha;
+}
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MainApp().setVisible(true));
