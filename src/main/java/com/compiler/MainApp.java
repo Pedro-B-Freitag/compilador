@@ -1,219 +1,354 @@
 package com.compiler;
 
-import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import com.compiler.utils.*;
 
-public class MainApp extends Application {
+public class MainApp extends JFrame {
 
-    private TextArea editor;
-    private TextArea numerosLinha;
-    private TextArea mensagens;
-    private Label statusBar;
+    private JTextArea editor;
+    private JTextArea mensagens;
+    private JLabel statusBar;
     private File arquivoAtual;
+    private String equipeNomes = "Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva";
 
-    @Override
-    public void start(Stage stage) {
-        stage.setTitle("Compilador - Interface");
-        stage.setWidth(1500);
-        stage.setHeight(800);
-        stage.setResizable(false);
+//____________________________________________________________________________________________________________        
+    public MainApp() {
+        setTitle("Compilador - Interface");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1500, 800);
+        setResizable(false);
+        setLocationRelativeTo(null);
 
-        ToolBar toolbar = new ToolBar();
-        toolbar.setPrefHeight(70);
+//____________________________________________________________________________________________________________        
+        JButton novo     = criarBotao("Novo [Ctrl-N]",   "novo.png");
+        JButton abrir    = criarBotao("Abrir [Ctrl-O]",  "abrir.png");
+        JButton salvar   = criarBotao("Salvar [Ctrl-S]", "salvar.png");
+        JButton copiar   = criarBotao("Copiar [Ctrl-C]", "copiar.png");
+        JButton colar    = criarBotao("Colar [Ctrl-V]",  "colar.png");
+        JButton recortar = criarBotao("Recortar [Ctrl-X]","recortar.png");
+        JButton compilar = criarBotao("Compilar [F7]",   "compilar.png");
+        JButton equipe   = criarBotao("Equipe [F1]",     "equipe.png");
 
-        Button novo = criarBotao("Novo [Ctrl-N]", "novo.png");
-        Button abrir = criarBotao("Abrir [Ctrl-O]", "abrir.png");
-        Button salvar = criarBotao("Salvar [Ctrl-S]", "salvar.png");
-        Button copiar = criarBotao("Copiar [Ctrl-C]", "copiar.png");
-        Button colar = criarBotao("Colar [Ctrl-V]", "colar.png");
-        Button recortar = criarBotao("Recortar [Ctrl-X]", "recortar.png");
-        Button compilar = criarBotao("Compilar [F7]", "compilar.png");
-        Button equipe = criarBotao("Equipe [F1]", "equipe.png");
+//____________________________________________________________________________________________________________        
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.setPreferredSize(new Dimension(1500, 70));
+        toolbar.add(novo);
+        toolbar.addSeparator(new Dimension(10, 0));
+        toolbar.add(abrir);
+        toolbar.addSeparator(new Dimension(10, 0));
+        toolbar.add(salvar);
+        toolbar.addSeparator(new Dimension(10, 0));
+        toolbar.add(copiar);
+        toolbar.addSeparator(new Dimension(10, 0));
+        toolbar.add(colar);
+        toolbar.addSeparator(new Dimension(10, 0));
+        toolbar.add(recortar);
+        toolbar.addSeparator(new Dimension(10, 0));
+        toolbar.add(compilar);
+        toolbar.addSeparator(new Dimension(10, 0));
+        toolbar.add(equipe);
 
-        toolbar.getItems().addAll(novo, abrir, salvar, copiar, colar, recortar, compilar, equipe);
+//____________________________________________________________________________________________________________        
+        editor = new JTextArea();
+        editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+        editor.setLineWrap(false);
+        editor.setBorder(new NumberedBorder());
+        JScrollPane spEditor = new JScrollPane(
+                editor,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
+        );
 
-        editor = new TextArea();
-        editor.setWrapText(false);
-        editor.setPromptText("");
-        editor.setFocusTraversable(true);
-
-        numerosLinha = new TextArea("1");
-        numerosLinha.setEditable(false);
-        numerosLinha.setMouseTransparent(true);
-        numerosLinha.setFocusTraversable(false);
-        numerosLinha.setPrefWidth(50);
-        numerosLinha.setMaxWidth(60);
-        numerosLinha.setWrapText(false);
-        numerosLinha.getStyleClass().add("line-numbers");
-        numerosLinha.setStyle("-fx-control-inner-background: #f0f0f0; -fx-focus-color: transparent; -fx-faint-focus-color: transparent; -fx-hbar-policy: never; -fx-vbar-policy: never;");
-        numerosLinha.setScrollTop(Double.MIN_VALUE);
-        numerosLinha.setScrollLeft(Double.MIN_VALUE);
-
-        editor.textProperty().addListener((obs, oldText, newText) -> atualizarNumeracao());
-
-        bindScrollBars(numerosLinha, editor);
-
-        HBox editorComLinhas = new HBox(numerosLinha, editor);
-        HBox.setHgrow(editor, Priority.ALWAYS);
-
-        mensagens = new TextArea();
+//____________________________________________________________________________________________________________        
+        mensagens = new JTextArea();
         mensagens.setEditable(false);
+        mensagens.setLineWrap(false);
+        JScrollPane spMsgs = new JScrollPane(
+                mensagens,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
+        );
 
-        SplitPane split = new SplitPane();
-        split.setOrientation(Orientation.VERTICAL);
-        split.getItems().addAll(editorComLinhas, mensagens);
-        split.setDividerPositions(0.75);
+//____________________________________________________________________________________________________________        
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, spEditor, spMsgs);
+        split.setResizeWeight(0.75);
+        split.setDividerSize(8);
 
-        statusBar = new Label("");
-        HBox status = new HBox(statusBar);
-        status.setPadding(new Insets(2, 8, 2, 8));
-        status.setPrefHeight(25);
+//____________________________________________________________________________________________________________        
+        statusBar = new JLabel(" ");
+        JPanel status = new JPanel(new BorderLayout());
+        status.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
+        status.setPreferredSize(new Dimension(1500, 25));
+        status.add(statusBar, BorderLayout.WEST);
 
-        BorderPane root = new BorderPane();
-        root.setTop(toolbar);
-        root.setCenter(split);
-        root.setBottom(status);
+//____________________________________________________________________________________________________________        
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(toolbar, BorderLayout.NORTH);
+        getContentPane().add(split, BorderLayout.CENTER);
+        getContentPane().add(status, BorderLayout.SOUTH);
 
-        Scene scene = new Scene(root);
+//____________________________________________________________________________________________________________        
+        novo.addActionListener(e -> acaoNovo());
+        abrir.addActionListener(e -> acaoAbrir());
+        salvar.addActionListener(e -> acaoSalvar());
+        copiar.addActionListener(e -> editor.copy());
+        colar.addActionListener(e -> editor.paste());
+        recortar.addActionListener(e -> editor.cut());
+        compilar.addActionListener(e -> analiseLexica());
+        equipe.addActionListener(e -> mensagens.setText(equipeNomes));
 
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN), () -> novo.fire());
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN), () -> abrir.fire());
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN), () -> salvar.fire());
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN), () -> copiar.fire());
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN), () -> colar.fire());
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN), () -> recortar.fire());
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.F7), () -> compilar.fire());
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.F1), () -> equipe.fire());
+//____________________________________________________________________________________________________________        
+        InputMap im = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = getRootPane().getActionMap();
 
-        novo.setOnAction(e -> {
-            editor.clear();
-            mensagens.clear();
-            statusBar.setText("");
-            arquivoAtual = null;
-            atualizarNumeracao();
-        });
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK), "novo");
+        am.put("novo", new AbstractAction() { public void actionPerformed(ActionEvent e) { acaoNovo(); }});
 
-        abrir.setOnAction(e -> {
-            FileChooser fc = new FileChooser();
-            fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Arquivos de Texto (*.txt)", "*.txt"));
-            File f = fc.showOpenDialog(stage);
-            if (f != null) {
-                carregarArquivo(f);
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK), "abrir");
+        am.put("abrir", new AbstractAction() { public void actionPerformed(ActionEvent e) { acaoAbrir(); }});
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK), "salvar");
+        am.put("salvar", new AbstractAction() { public void actionPerformed(ActionEvent e) { acaoSalvar(); }});
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK), "copiar");
+        am.put("copiar", new AbstractAction() { public void actionPerformed(ActionEvent e) { editor.copy(); }});
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK), "colar");
+        am.put("colar", new AbstractAction() { public void actionPerformed(ActionEvent e) { editor.paste(); }});
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK), "recortar");
+        am.put("recortar", new AbstractAction() { public void actionPerformed(ActionEvent e) { editor.cut(); }});
+
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0), "compilar");
+        am.put("compilar", new AbstractAction() {
+            
+        public void actionPerformed(ActionEvent e) {
+                analiseLexica();
             }
         });
 
-        salvar.setOnAction(e -> salvarArquivo(stage));
-
-        copiar.setOnAction(e -> editor.copy());
-        colar.setOnAction(e -> editor.paste());
-        recortar.setOnAction(e -> editor.cut());
-
-        compilar.setOnAction(e -> {
-            mensagens.clear();
-            mensagens.setText("Compilação de programas ainda não foi implementada.");
-        });
-
-        equipe.setOnAction(e -> {
-            mensagens.clear();
-            mensagens.setText("Equipe de Desenvolvimento:\nPedro Bosini Freitag");
-        });
-
-        stage.setScene(scene);
-        stage.show();
-
-        atualizarNumeracao();
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "equipe");
+        am.put("equipe", new AbstractAction() { public void actionPerformed(ActionEvent e) {
+            mensagens.setText("Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva"); }});
     }
 
-    private void carregarArquivo(File f) {
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = r.readLine()) != null) {
-                sb.append(line).append("\n");
+//____________________________________________________________________________________________________________    
+    private void acaoNovo() {
+        editor.setText("");
+        mensagens.setText("");
+        statusBar.setText(" ");
+        arquivoAtual = null;
+    }
+
+//____________________________________________________________________________________________________________    
+    private void acaoAbrir() {
+        JFileChooser fc = new JFileChooser();
+        fc.setFileFilter(new FileNameExtensionFilter("Arquivos de Texto (*.txt)", "txt"));
+        int res = fc.showOpenDialog(this);
+        if (res == JFileChooser.APPROVE_OPTION) {
+            File f = fc.getSelectedFile();
+            try (BufferedReader r = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = r.readLine()) != null) sb.append(line).append(System.lineSeparator());
+                editor.setText(sb.toString());
+                mensagens.setText("");
+                statusBar.setText(f.getAbsolutePath());
+                arquivoAtual = f;
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao abrir: " + ex.getMessage(),
+                        "Erro", JOptionPane.ERROR_MESSAGE);
             }
-            editor.setText(sb.toString());
-            mensagens.clear();
-            statusBar.setText(f.getAbsolutePath());
-            arquivoAtual = f;
-            atualizarNumeracao();
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
     }
 
-    private void salvarArquivo(Stage stage) {
+//____________________________________________________________________________________________________________    
+    private void acaoSalvar() {
         try {
             if (arquivoAtual == null) {
-                FileChooser fc = new FileChooser();
-                fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Arquivos de Texto (*.txt)", "*.txt"));
-                File f = fc.showSaveDialog(stage);
-                if (f == null) return;
+                JFileChooser fc = new JFileChooser();
+                fc.setFileFilter(new FileNameExtensionFilter("Arquivos de Texto (*.txt)", "txt"));
+                int res = fc.showSaveDialog(this);
+                if (res != JFileChooser.APPROVE_OPTION) return;
+
+                File f = fc.getSelectedFile();
+                if (!f.getName().toLowerCase().endsWith(".txt")) {
+                    f = new File(f.getParentFile(), f.getName() + ".txt");
+                }
+                try (BufferedWriter w = new BufferedWriter(
+                        new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8))) {
+                    w.write(editor.getText());
+                }
+                mensagens.setText("");
+                statusBar.setText(f.getAbsolutePath());
                 arquivoAtual = f;
+            } else {
+                try (BufferedWriter w = new BufferedWriter(
+                        new OutputStreamWriter(new FileOutputStream(arquivoAtual), StandardCharsets.UTF_8))) {
+                    w.write(editor.getText());
+                }
+                mensagens.setText("");
             }
-            try (BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(arquivoAtual), StandardCharsets.UTF_8))) {
-                w.write(editor.getText());
-            }
-            mensagens.clear();
-            statusBar.setText(arquivoAtual.getAbsolutePath());
         } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Erro ao salvar: " + ex.getMessage(),
+                    "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private Button criarBotao(String texto, String arquivoIcone) {
-        ImageView icone = null;
-        try {
-            InputStream is = getClass().getResourceAsStream("/icons/" + arquivoIcone);
-            if (is != null) {
-                Image img = new Image(is);
-                icone = new ImageView(img);
-                icone.setFitWidth(32);
-                icone.setFitHeight(32);
-                icone.setPreserveRatio(true);
-            }
-        } catch (Exception ignored) { }
-        Button b = (icone == null) ? new Button(texto) : new Button(texto, icone);
-        b.setContentDisplay(ContentDisplay.TOP);
-        b.setPrefWidth(120);
-        b.setPrefHeight(70);
+//____________________________________________________________________________________________________________    
+    private JButton criarBotao(String texto, String iconeArquivo) {
+        JButton b = new JButton(texto);
+        b.setFocusable(false);
+        b.setPreferredSize(new Dimension(120, 70));
+        b.setHorizontalTextPosition(SwingConstants.CENTER);
+        b.setVerticalTextPosition(SwingConstants.BOTTOM);
+
+        var url = getClass().getResource("/icons/" + iconeArquivo);
+        if (url != null) {
+            ImageIcon icon = new ImageIcon(url);
+            Image img = icon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+            b.setIcon(new ImageIcon(img));
+        }
         return b;
     }
 
-    private void atualizarNumeracao() {
-        String text = editor.getText();
-        int linhas = 1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '\n') linhas++;
+//____________________________________________________________________________________________________________    
+    public void analiseLexica(){
+        Lexico lexico = new Lexico();
+
+        lexico.setInput(editor.getText());
+
+        try {
+            Token t = null;
+            mensagens.setText(""); 
+            //revisar aqui
+            while ( (t = lexico.nextToken()) != null ) {          
+
+                int linha = getLinha(editor.getText(), t.getPosition());
+
+                mensagens.append(t.getLexeme() + 
+                                 " - id:" + classificaToken(t.getId()) + 
+                                 " - pos:" + linha + "\n");
+                
+                // só escreve o lexema, necessário escrever t.getId, t.getPosition()
+            
+                // t.getId () - retorna o identificador da classe (ver Constants.java) 
+                // necessário adaptar, pois deve ser apresentada a classe por extenso
+                // MUDAR ID PELO NOME EXTENSO USANDO SWITCH CASE
+            
+                // t.getPosition () - retorna a posição inicial do lexema no editor 
+                // necessário adaptar para mostrar a linha	
+            
+
+                // esse código apresenta os tokens enquanto não ocorrer erro
+                // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro,
+                // necessário adaptar para atender o que foi solicitado		   
+            }
         }
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= linhas; i++) {
-            sb.append(i).append("\n");
-        }
-        numerosLinha.setText(sb.toString());
-        numerosLinha.setScrollTop(editor.getScrollTop());
+        
+        catch ( LexicalError f ) {  // tratamento de erros
+            int linhaErro = getLinha(editor.getText(), f.getPosition());
+            mensagens.setText(f.getMessage() + " na linha " + linhaErro);
+
+        
+            // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (ver ScannerConstants.java)
+            // necessário adaptar conforme o enunciado da parte 2
+            
+            // e.getPosition() - retorna a posição inicial do erro 
+            // necessário adaptar para mostrar a linha  
+            } 
     }
 
-    private void bindScrollBars(TextArea left, TextArea right) {
-        left.scrollTopProperty().bindBidirectional(right.scrollTopProperty());
+//____________________________________________________________________________________________________________        
+    public String classificaToken(int token) {
+    
+        switch (token) {
+            
+            // Constantes
+            case Constants.t_identificador:
+                return "identificador";
+            
+            case Constants.t_cint:
+                return "constante_int";
+
+            case Constants.t_cfloat:
+                return "constante_float";
+
+            case Constants.t_cstring:
+                return "constante_string";
+
+            //Palavras reservadas
+            case Constants.t_pr_add:
+            case Constants.t_pr_and:
+            case Constants.t_pr_begin:
+            case Constants.t_pr_bool:
+            case Constants.t_pr_count:
+            case Constants.t_pr_delete:
+            case Constants.t_pr_do:
+            case Constants.t_pf_elemenetof:
+            case Constants.t_pr_else:
+            case Constants.t_pr_end:
+            case Constants.t_pr_false:
+            case Constants.t_pr_float:
+            case Constants.t_pr_if:
+            case Constants.t_pr_int:
+            case Constants.t_pr_list:
+            case Constants.t_pr_not:
+            case Constants.t_pr_or:
+            case Constants.t_pr_print:
+            case Constants.t_pr_read:
+            case Constants.t_pr_size:
+            case Constants.t_pr_string:
+            case Constants.t_pr_true:
+            case Constants.t_pr_until:
+                return "palavra_reservada";
+        
+            //Simbolos Especiais
+            case Constants.t_TOKEN_29: // (
+            case Constants.t_TOKEN_30: // )
+            case Constants.t_TOKEN_31: // +
+            case Constants.t_TOKEN_32: // -
+            case Constants.t_TOKEN_33: // *
+            case Constants.t_TOKEN_34: // /
+            case Constants.t_TOKEN_35: // ==
+            case Constants.t_TOKEN_36: // ~=
+            case Constants.t_TOKEN_37: // <
+            case Constants.t_TOKEN_38: // >
+            case Constants.t_TOKEN_39: // =
+            case Constants.t_TOKEN_40: // <-
+            case Constants.t_TOKEN_41: // ;
+            case Constants.t_TOKEN_42: // ,
+                return "simbolo_especial";
+
+            default:
+                return "token_desconhecido";
+        }
     }
 
+    // Encontrar Linha
+    private int getLinha(String texto, int posicao) {
+        int linha = 1; // inicia sempre na linha 1
+
+        //Percorre caracter por caracter ate chegar no final 
+        for (int i = 0; i < posicao && i < texto.length(); i++) {
+            
+            if (texto.charAt(i) == '\n') {
+                linha++;
+            }
+        }
+        return linha; 
+    }
+
+//____________________________________________________________________________________________________________        
     public static void main(String[] args) {
-        launch();
-    }
+        SwingUtilities.invokeLater(() -> new MainApp().setVisible(true));
+    }    
+
 }
