@@ -233,7 +233,9 @@ public class MainApp extends JFrame {
 
                 int linha = getLinha(editor.getText(), t.getPosition());
 
-                mensagens.append(t.getLexeme() + " - id:" + classificaToken(t.getId()) + " - pos:" + linha + "\n");
+                mensagens.append(t.getLexeme() + 
+                                 " - id:" + classificaToken(t.getId()) + 
+                                 " - pos:" + linha + "\n");
                 
                 // só escreve o lexema, necessário escrever t.getId, t.getPosition()
             
@@ -269,16 +271,20 @@ public class MainApp extends JFrame {
     
         switch (token) {
             
+            // Constantes
             case Constants.t_identificador:
                 return "identificador";
             
             case Constants.t_cint:
                 return "constante_int";
+
             case Constants.t_cfloat:
                 return "constante_float";
+
             case Constants.t_cstring:
                 return "constante_string";
-            
+
+            //Palavras reservadas
             case Constants.t_pr_add:
             case Constants.t_pr_and:
             case Constants.t_pr_begin:
@@ -304,6 +310,7 @@ public class MainApp extends JFrame {
             case Constants.t_pr_until:
                 return "palavra_reservada";
         
+            //Simbolos Especiais
             case Constants.t_TOKEN_29: // (
             case Constants.t_TOKEN_30: // )
             case Constants.t_TOKEN_31: // +
@@ -327,14 +334,17 @@ public class MainApp extends JFrame {
 
     // Encontrar Linha
     private int getLinha(String texto, int posicao) {
-    int linha = 1;
-    for (int i = 0; i < posicao && i < texto.length(); i++) {
-        if (texto.charAt(i) == '\n') {
-            linha++;
+        int linha = 1; // inicia sempre na linha 1
+
+        //Percorre caracter por caracter ate chegar no final 
+        for (int i = 0; i < posicao && i < texto.length(); i++) {
+            
+            if (texto.charAt(i) == '\n') {
+                linha++;
+            }
         }
+        return linha; 
     }
-    return linha;
-}
 
 //____________________________________________________________________________________________________________        
     public static void main(String[] args) {
