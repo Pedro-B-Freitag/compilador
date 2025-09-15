@@ -16,7 +16,7 @@ public class MainApp extends JFrame {
     private File arquivoAtual;
     private String equipeNomes = "Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva";
 
-
+//____________________________________________________________________________________________________________        
     public MainApp() {
         setTitle("Compilador - Interface");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -24,10 +24,7 @@ public class MainApp extends JFrame {
         setResizable(false);
         setLocationRelativeTo(null);
 
-        JToolBar toolbar = new JToolBar();
-        toolbar.setFloatable(false);
-        toolbar.setPreferredSize(new Dimension(1500, 70));
-
+//____________________________________________________________________________________________________________        
         JButton novo     = criarBotao("Novo [Ctrl-N]",   "novo.png");
         JButton abrir    = criarBotao("Abrir [Ctrl-O]",  "abrir.png");
         JButton salvar   = criarBotao("Salvar [Ctrl-S]", "salvar.png");
@@ -37,6 +34,10 @@ public class MainApp extends JFrame {
         JButton compilar = criarBotao("Compilar [F7]",   "compilar.png");
         JButton equipe   = criarBotao("Equipe [F1]",     "equipe.png");
 
+//____________________________________________________________________________________________________________        
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.setPreferredSize(new Dimension(1500, 70));
         toolbar.add(novo);
         toolbar.addSeparator(new Dimension(10, 0));
         toolbar.add(abrir);
@@ -53,6 +54,7 @@ public class MainApp extends JFrame {
         toolbar.addSeparator(new Dimension(10, 0));
         toolbar.add(equipe);
 
+//____________________________________________________________________________________________________________        
         editor = new JTextArea();
         editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
         editor.setLineWrap(false);
@@ -63,6 +65,7 @@ public class MainApp extends JFrame {
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
         );
 
+//____________________________________________________________________________________________________________        
         mensagens = new JTextArea();
         mensagens.setEditable(false);
         mensagens.setLineWrap(false);
@@ -72,21 +75,25 @@ public class MainApp extends JFrame {
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS
         );
 
+//____________________________________________________________________________________________________________        
         JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, spEditor, spMsgs);
         split.setResizeWeight(0.75);
         split.setDividerSize(8);
 
+//____________________________________________________________________________________________________________        
         statusBar = new JLabel(" ");
         JPanel status = new JPanel(new BorderLayout());
         status.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
         status.setPreferredSize(new Dimension(1500, 25));
         status.add(statusBar, BorderLayout.WEST);
 
+//____________________________________________________________________________________________________________        
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(split, BorderLayout.CENTER);
         getContentPane().add(status, BorderLayout.SOUTH);
 
+//____________________________________________________________________________________________________________        
         novo.addActionListener(e -> acaoNovo());
         abrir.addActionListener(e -> acaoAbrir());
         salvar.addActionListener(e -> acaoSalvar());
@@ -96,6 +103,7 @@ public class MainApp extends JFrame {
         compilar.addActionListener(e -> analiseLexica());
         equipe.addActionListener(e -> mensagens.setText(equipeNomes));
 
+//____________________________________________________________________________________________________________        
         InputMap im = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = getRootPane().getActionMap();
 
@@ -120,22 +128,17 @@ public class MainApp extends JFrame {
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0), "compilar");
         am.put("compilar", new AbstractAction() {
             
-            public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(ActionEvent e) {
                 analiseLexica();
             }
         });
-
-
-
-
-
-
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "equipe");
         am.put("equipe", new AbstractAction() { public void actionPerformed(ActionEvent e) {
             mensagens.setText("Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva"); }});
     }
 
+//____________________________________________________________________________________________________________    
     private void acaoNovo() {
         editor.setText("");
         mensagens.setText("");
@@ -143,6 +146,7 @@ public class MainApp extends JFrame {
         arquivoAtual = null;
     }
 
+//____________________________________________________________________________________________________________    
     private void acaoAbrir() {
         JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new FileNameExtensionFilter("Arquivos de Texto (*.txt)", "txt"));
@@ -165,6 +169,7 @@ public class MainApp extends JFrame {
         }
     }
 
+//____________________________________________________________________________________________________________    
     private void acaoSalvar() {
         try {
             if (arquivoAtual == null) {
@@ -197,6 +202,7 @@ public class MainApp extends JFrame {
         }
     }
 
+//____________________________________________________________________________________________________________    
     private JButton criarBotao(String texto, String iconeArquivo) {
         JButton b = new JButton(texto);
         b.setFocusable(false);
@@ -213,6 +219,7 @@ public class MainApp extends JFrame {
         return b;
     }
 
+//____________________________________________________________________________________________________________    
     public void analiseLexica(){
         Lexico lexico = new Lexico();
 
@@ -257,7 +264,7 @@ public class MainApp extends JFrame {
             } 
     }
 
-
+//____________________________________________________________________________________________________________        
     public String classificaToken(int token) {
     
         switch (token) {
@@ -329,7 +336,7 @@ public class MainApp extends JFrame {
     return linha;
 }
 
-
+//____________________________________________________________________________________________________________        
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MainApp().setVisible(true));
     }    
