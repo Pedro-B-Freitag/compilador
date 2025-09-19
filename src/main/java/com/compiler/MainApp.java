@@ -331,7 +331,8 @@ public class MainApp extends JFrame {
                 return "token_desconhecido";
         }
     }
-
+    
+//____________________________________________________________________________________________________________  
     // Encontrar Linha
     private int getLinha(String texto, int posicao) {
         int linha = 1; // inicia sempre na linha 1
