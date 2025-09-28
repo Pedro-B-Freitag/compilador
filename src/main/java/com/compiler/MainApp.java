@@ -227,35 +227,33 @@ public class MainApp extends JFrame {
 
         try {
             Token t = null;
-            mensagens.setText(""); 
-            //revisar aqui
-            while ( (t = lexico.nextToken()) != null ) {          
+            mensagens.setText("");
+            while ((t = lexico.nextToken()) != null) {
 
                 int linha = getLinha(editor.getText(), t.getPosition());
 
-                mensagens.append(t.getLexeme() + 
-                                 " - id:" + classificaToken(t.getId()) + 
-                                 " - pos:" + linha + "\n");
-                
+                mensagens.append(t.getLexeme() +
+                        " - id:" + classificaToken(t.getId()) +
+                        " - linha:" + linha + "\n");
+
                 // só escreve o lexema, necessário escrever t.getId, t.getPosition()
-            
+
                 // t.getId () - retorna o identificador da classe (ver Constants.java) 
                 // necessário adaptar, pois deve ser apresentada a classe por extenso
                 // MUDAR ID PELO NOME EXTENSO USANDO SWITCH CASE
-            
+
                 // t.getPosition () - retorna a posição inicial do lexema no editor 
                 // necessário adaptar para mostrar a linha	
-            
+
 
                 // esse código apresenta os tokens enquanto não ocorrer erro
                 // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro,
                 // necessário adaptar para atender o que foi solicitado		   
             }
         }
-        
         catch ( LexicalError f ) {  // tratamento de erros
             int linhaErro = getLinha(editor.getText(), f.getPosition());
-            mensagens.setText(f.getMessage() + " na linha " + linhaErro);
+            mensagens.setText( editor.getText().charAt(f.getPosition()) + " " + f.getMessage() + " na linha " + linhaErro);
 
         
             // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (ver ScannerConstants.java)
