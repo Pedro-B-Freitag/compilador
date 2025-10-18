@@ -16,7 +16,7 @@ public class MainApp extends JFrame {
     private File arquivoAtual;
     private String equipeNomes = "Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva";
 
-//____________________________________________________________________________________________________________        
+    //____________________________________________________________________________________________________________
     public MainApp() {
         setTitle("Compilador - Interface");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -127,8 +127,8 @@ public class MainApp extends JFrame {
 
         im.put(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0), "compilar");
         am.put("compilar", new AbstractAction() {
-            
-        public void actionPerformed(ActionEvent e) {
+
+            public void actionPerformed(ActionEvent e) {
                 analiseLexica();
             }
         });
@@ -138,7 +138,7 @@ public class MainApp extends JFrame {
             mensagens.setText("Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva"); }});
     }
 
-//____________________________________________________________________________________________________________    
+    //____________________________________________________________________________________________________________
     private void acaoNovo() {
         editor.setText("");
         mensagens.setText("");
@@ -146,7 +146,7 @@ public class MainApp extends JFrame {
         arquivoAtual = null;
     }
 
-//____________________________________________________________________________________________________________    
+    //____________________________________________________________________________________________________________
     private void acaoAbrir() {
         JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new FileNameExtensionFilter("Arquivos de Texto (*.txt)", "txt"));
@@ -169,7 +169,7 @@ public class MainApp extends JFrame {
         }
     }
 
-//____________________________________________________________________________________________________________    
+    //____________________________________________________________________________________________________________
     private void acaoSalvar() {
         try {
             if (arquivoAtual == null) {
@@ -202,7 +202,7 @@ public class MainApp extends JFrame {
         }
     }
 
-//____________________________________________________________________________________________________________    
+    //____________________________________________________________________________________________________________
     private JButton criarBotao(String texto, String iconeArquivo) {
         JButton b = new JButton(texto);
         b.setFocusable(false);
@@ -219,62 +219,83 @@ public class MainApp extends JFrame {
         return b;
     }
 
-//____________________________________________________________________________________________________________    
-    public void analiseLexica(){
+    //____________________________________________________________________________________________________________
+    public void analiseLexica() {
         Lexico lexico = new Lexico();
-
+        Sintatico sintatico = new Sintatico();
+        Semantico semantico = new Semantico();
         lexico.setInput(editor.getText());
 
         try {
-            Token t = null;
-            mensagens.setText(""); 
+            mensagens.setText("");
+            sintatico.parse(lexico, semantico);
+            mensagens.setText("Compilado com sucesso");
+            /* Token t = null;
             //revisar aqui
-            while ( (t = lexico.nextToken()) != null ) {          
+            while ( (t = lexico.nextToken()) != null ) {
 
                 int linha = getLinha(editor.getText(), t.getPosition());
 
-                mensagens.append(t.getLexeme() + 
-                                 " - id:" + classificaToken(t.getId()) + 
-                                 " - pos:" + linha + "\n");
-                
+                mensagens.append(t.getLexeme() +
+                                " - id:" + classificaToken(t.getId()) +
+                                " - pos:" + linha + "\n");
+
                 // só escreve o lexema, necessário escrever t.getId, t.getPosition()
-            
-                // t.getId () - retorna o identificador da classe (ver Constants.java) 
+
+                // t.getId () - retorna o identificador da classe (ver Constants.java)
                 // necessário adaptar, pois deve ser apresentada a classe por extenso
                 // MUDAR ID PELO NOME EXTENSO USANDO SWITCH CASE
-            
-                // t.getPosition () - retorna a posição inicial do lexema no editor 
-                // necessário adaptar para mostrar a linha	
-            
+
+                // t.getPosition () - retorna a posição inicial do lexema no editor
+                // necessário adaptar para mostrar a linha
+
 
                 // esse código apresenta os tokens enquanto não ocorrer erro
                 // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro,
-                // necessário adaptar para atender o que foi solicitado		   
-            }
+                // necessário adaptar para atender o que foi solicitado
+            } */
         }
-        
-        catch ( LexicalError f ) {  // tratamento de erros
-            int linhaErro = getLinha(editor.getText(), f.getPosition());
-            mensagens.setText(f.getMessage() + " na linha " + linhaErro);
 
-        
-            // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (ver ScannerConstants.java)
-            // necessário adaptar conforme o enunciado da parte 2
-            
-            // e.getPosition() - retorna a posição inicial do erro 
-            // necessário adaptar para mostrar a linha  
-            } 
+        catch ( LexicalError f ) {  // tratamento de erros
+            mensagens.setText(f.getMessage() + " na linha " +  getLinha(editor.getText(), f.getPosition()));
+        }
+
+        catch (SyntaticError e) {
+            Token token = null;
+            Token ultimoToken = null;
+
+            while (true) {
+                try {
+                    if (!((token = lexico.nextToken()) != null && token.getPosition() < e.getPosition())) break;
+                } catch (LexicalError ex) {
+                    throw new RuntimeException(ex);
+                }
+                ultimoToken = token;
+            }
+
+            Token tokenErro = (token != null) ? token : ultimoToken;
+
+            String encontrado = (tokenErro != null) ? tokenErro.getLexeme() : "EOF";
+
+            String mensagemErro = "Erro sintático:\nLinha " + getLinha(editor.getText(), e.getPosition()) +
+                    ": encontrado \"" + encontrado + "\"; esperado... " ;
+
+            mensagens.setText(mensagemErro);
+        }
+        catch ( SemanticError e ) {
+            // trata erros semânticos na parte 4
+        }
     }
 
-//____________________________________________________________________________________________________________        
+    //____________________________________________________________________________________________________________
     public String classificaToken(int token) {
-    
+
         switch (token) {
-            
+
             // Constantes
             case Constants.t_identificador:
                 return "identificador";
-            
+
             case Constants.t_cint:
                 return "constante_int";
 
@@ -292,7 +313,7 @@ public class MainApp extends JFrame {
             case Constants.t_pr_count:
             case Constants.t_pr_delete:
             case Constants.t_pr_do:
-            case Constants.t_pf_elemenetof:
+            case Constants.t_pr_elementof:
             case Constants.t_pr_else:
             case Constants.t_pr_end:
             case Constants.t_pr_false:
@@ -309,7 +330,7 @@ public class MainApp extends JFrame {
             case Constants.t_pr_true:
             case Constants.t_pr_until:
                 return "palavra_reservada";
-        
+
             //Simbolos Especiais
             case Constants.t_TOKEN_29: // (
             case Constants.t_TOKEN_30: // )
@@ -331,25 +352,25 @@ public class MainApp extends JFrame {
                 return "token_desconhecido";
         }
     }
-    
-//____________________________________________________________________________________________________________  
+
+    //____________________________________________________________________________________________________________
     // Encontrar Linha
     private int getLinha(String texto, int posicao) {
         int linha = 1; // inicia sempre na linha 1
 
         //Percorre caracter por caracter ate chegar no final 
         for (int i = 0; i < posicao && i < texto.length(); i++) {
-            
+
             if (texto.charAt(i) == '\n') {
                 linha++;
             }
         }
-        return linha; 
+        return linha;
     }
 
-//____________________________________________________________________________________________________________        
+    //____________________________________________________________________________________________________________
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MainApp().setVisible(true));
-    }    
+    }
 
 }
