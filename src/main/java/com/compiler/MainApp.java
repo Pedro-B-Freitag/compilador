@@ -262,23 +262,37 @@ public class MainApp extends JFrame {
 
         catch (SyntaticError e) {
             Token token = null;
-            Token ultimoToken = null;
 
+            lexico.setInput(editor.getText());
             while (true) {
                 try {
-                    if (!((token = lexico.nextToken()) != null && token.getPosition() < e.getPosition())) break;
+                    token = lexico.nextToken();
+                    if(!(token != null && token.getPosition() < e.getPosition())){
+                        break;
+                    }
                 } catch (LexicalError ex) {
                     throw new RuntimeException(ex);
                 }
-                ultimoToken = token;
             }
 
-            Token tokenErro = (token != null) ? token : ultimoToken;
+            String encontradoStr;
 
-            String encontrado = (tokenErro != null) ? tokenErro.getLexeme() : "EOF";
+            if (token == null) {
+                encontradoStr = "EOF";
+            } else {
+                if (token.getId() == Constants.t_cstring) {
+                    encontradoStr = "constante_string";
+                }
+                else if ("$".equals(token.getLexeme())) {
+                    encontradoStr = "EOF";
+                }
+                else {
+                    encontradoStr = token.getLexeme();
+                }
+            }
 
-            String mensagemErro = "Erro sintático:\nLinha " + getLinha(editor.getText(), e.getPosition()) +
-                    ": encontrado \"" + encontrado + "\"; esperado... " ;
+            String mensagemErro = "linha " + getLinha(editor.getText(), e.getPosition())
+                    + ": encontrado " + encontradoStr + " esperado ...";
 
             mensagens.setText(mensagemErro);
         }
@@ -354,11 +368,9 @@ public class MainApp extends JFrame {
     }
 
     //____________________________________________________________________________________________________________
-    // Encontrar Linha
     private int getLinha(String texto, int posicao) {
         int linha = 1; // inicia sempre na linha 1
 
-        //Percorre caracter por caracter ate chegar no final 
         for (int i = 0; i < posicao && i < texto.length(); i++) {
 
             if (texto.charAt(i) == '\n') {
