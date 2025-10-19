@@ -1,6 +1,3 @@
-# Arquivos e pastas geradas pelo Maven
- /target/
-
 # Arquivos de compilação e cache do Java
  *.class
  *.log
@@ -26,3 +23,5 @@
  *~
  *.bak
  *.tmp
+
+target/
