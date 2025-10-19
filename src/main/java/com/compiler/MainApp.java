@@ -257,7 +257,7 @@ public class MainApp extends JFrame {
         }
 
         catch ( LexicalError f ) {  // tratamento de erros
-            mensagens.setText(f.getMessage() + " na linha " +  getLinha(editor.getText(), f.getPosition()));
+            mensagens.setText("linha " +  getLinha(editor.getText(), f.getPosition()) + ": " + f.getMessage());
         }
 
         catch (SyntaticError e) {
