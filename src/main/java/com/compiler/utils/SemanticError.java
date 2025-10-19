@@ -1,5 +1,4 @@
-package com.compiler.utils;
-
+package com.compiler.utils;	
 public class SemanticError extends AnalysisError
 {
     public SemanticError(String msg, int position)

@@ -1,5 +1,4 @@
-package com.compiler.utils;
-
+package com.compiler.utils;	
 public class Lexico implements Constants
 {
     private int position;

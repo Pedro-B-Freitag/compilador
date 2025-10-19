@@ -1,5 +1,4 @@
-package com.compiler.utils;
-
+package com.compiler.utils;	
 public class LexicalError extends AnalysisError
 {
     public LexicalError(String msg, int position)

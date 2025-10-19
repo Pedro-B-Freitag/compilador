@@ -1,5 +1,4 @@
-package com.compiler.utils;
-
+package com.compiler.utils;	
 public class SyntaticError extends AnalysisError
 {
     public SyntaticError(String msg, int position)

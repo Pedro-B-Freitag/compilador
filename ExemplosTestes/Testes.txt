@@ -1,0 +1,82 @@
+begin
+  int lado;
+  read("digite um valor para lado: , lado);
+end
+
+-----
+
+begin
+  int lado@;
+end
+
+-----
+
+begin
+  /* comentário sem fim
+  int x;
+end
+
+-----
+
+begin
+  float x;
+  x = 1.2.3;
+end
+
+-----
+
+egin
+  int lado;
+end
+
+-----
+
+begin
+  int lado
+  end
+
+-----
+
+begin
+  list minhaLista;
+  minhaLista 100;
+end
+
+-----
+
+begin
+  int lado;
+  read("olá", lado
+  print("x");
+end
+
+-----
+
+begin
+  fakeTokenHere
+end
+
+-----
+
+begin
+  123abc;
+end
+
+-----
+
+begin
+  print();
+end
+
+-----
+
+begin
+  prin("x");
+end
+
+-----
+
+begin
+  int x;
+  x = 1.2;
+end
