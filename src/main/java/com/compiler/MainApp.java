@@ -226,6 +226,7 @@ public class MainApp extends JFrame {
         Semantico semantico = new Semantico();
         lexico.setInput(editor.getText());
 
+        // SUCESSO
         try {
             mensagens.setText("");
             sintatico.parse(lexico, semantico);
@@ -256,17 +257,27 @@ public class MainApp extends JFrame {
             } */
         }
 
+
+        // RETORNO ERROS
+
+        // Exibe mensagem de erro léxico com linha e descrição
         catch ( LexicalError f ) {  // tratamento de erros
             mensagens.setText("linha " +  getLinha(editor.getText(), f.getPosition()) + ": " + f.getMessage());
         }
 
+
+        // Exibe mensagem de erro sintático com linha e descrição
         catch (SyntaticError e) {
             Token token = null;
-
+            
+            // Reinicializa o analisador léxico com o texto do editor
             lexico.setInput(editor.getText());
+
+            // Busca o token que causou o erro sintático
             while (true) {
                 try {
                     token = lexico.nextToken();
+                    // Continua até encontrar o token na posição do erro
                     if(!(token != null && token.getPosition() < e.getPosition())){
                         break;
                     }
@@ -275,10 +286,12 @@ public class MainApp extends JFrame {
                 }
             }
 
+            // String que armazenará o token encontrado
             String encontradoStr;
 
+            // Determina qual token foi encontrado
             if (token == null) {
-                encontradoStr = "EOF";
+                encontradoStr = "EOF"; 
             } else {
                 if (token.getId() == Constants.t_cstring) {
                     encontradoStr = "constante_string";
@@ -290,7 +303,9 @@ public class MainApp extends JFrame {
                     encontradoStr = token.getLexeme();
                 }
             }
+            
 
+            // Monta a mensagem de erro com linha, token encontrado e indicação do esperado
             String mensagemErro = "linha " + getLinha(editor.getText(), e.getPosition())
                     + ": encontrado " + encontradoStr + " esperado ...";
 
