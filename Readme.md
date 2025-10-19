@@ -18,9 +18,8 @@ O script irá:
 
 ### Resultado
 
-Após a execução, o arquivo **`CompiladorInterface-1.0-SNAPSHOT.jar`** será criado na pasta **target**.
+Após a execução, o arquivo **`CompiladorInterface-1.0-SNAPSHOT.jar`** será criado na **raiz do projeto**.
 
-Lembre de jogar na raiz do projeto o novo **.jar**
 
 Você pode executá-lo com:
 
