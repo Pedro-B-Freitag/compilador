@@ -302,7 +302,7 @@ public class MainApp extends JFrame {
                             } catch (Exception ignored) {
                                 // ignora problemas de nao achar o elemento
                             }
-                        }
+                        }                        
                     }
                     if (sb.length() > 0) esperadoStr = sb.toString();
                 } else if (elemento > 0) {
