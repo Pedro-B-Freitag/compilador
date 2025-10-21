@@ -137,7 +137,7 @@ public interface ParserConstants
     {
         "",
         "esperado EOF", //"Era esperado fim de programa",
-        "esperado",//"Era esperado identificador",
+        "Era esperado identificador",
         "esperado constante_int", //"Era esperado cint",
         "esperado constante_float", //"Era esperado cfloat",
         "esperado constante_string", //"Era esperado cstring",
@@ -180,7 +180,7 @@ public interface ParserConstants
         "esperado ,", //"Era esperado \",\"",
         "esperado begin", //"<programa> inválido",
         "esperado identificador", //"<lista_de_instrucoes> inválido",
-        "<lista_de_instrucoes1> inválido",
+        "esperado identificador do if print read tipo", //"<lista_de_instrucoes1> inválido",
         "<instrucao> inválido",
         "<variaveis> inválido",
         "<tipo_variavel> inválido",
