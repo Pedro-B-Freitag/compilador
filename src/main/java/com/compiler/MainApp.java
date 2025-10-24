@@ -16,7 +16,7 @@ public class MainApp extends JFrame {
     private File arquivoAtual;
     private String equipeNomes = "Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva";
 
-    //____________________________________________________________________________________________________________
+//____________________________________________________________________________________________________________
     public MainApp() {
         setTitle("Compilador - Interface");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -138,7 +138,7 @@ public class MainApp extends JFrame {
             mensagens.setText("Equipe de Desenvolvimento:\nPedro Bosini Freitag, Samuel Jose Candido e Vitor da Silva"); }});
     }
 
-//____________________________________________________________________________________________________________
+    //____________________________________________________________________________________________________________
     private void acaoNovo() {
         editor.setText("");
         mensagens.setText("");
@@ -226,24 +226,58 @@ public class MainApp extends JFrame {
         Semantico semantico = new Semantico();
         lexico.setInput(editor.getText());
 
+        // SUCESSO
         try {
             mensagens.setText("");
             sintatico.parse(lexico, semantico);
             mensagens.setText("Compilado com sucesso");
+            /* Token t = null;
+            //revisar aqui
+            while ( (t = lexico.nextToken()) != null ) {
+
+                int linha = getLinha(editor.getText(), t.getPosition());
+
+                mensagens.append(t.getLexeme() +
+                                " - id:" + classificaToken(t.getId()) +
+                                " - pos:" + linha + "\n");
+
+                // só escreve o lexema, necessário escrever t.getId, t.getPosition()
+
+                // t.getId () - retorna o identificador da classe (ver Constants.java)
+                // necessário adaptar, pois deve ser apresentada a classe por extenso
+                // MUDAR ID PELO NOME EXTENSO USANDO SWITCH CASE
+
+                // t.getPosition () - retorna a posição inicial do lexema no editor
+                // necessário adaptar para mostrar a linha
+
+
+                // esse código apresenta os tokens enquanto não ocorrer erro
+                // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro,
+                // necessário adaptar para atender o que foi solicitado
+            } */
         }
 
+
+        // RETORNO ERROS
+
+        // Exibe mensagem de erro léxico com linha e descrição
         catch ( LexicalError f ) {  // tratamento de erros
-            // Modificado 19/10/25
             mensagens.setText("linha " +  getLinha(editor.getText(), f.getPosition()) + ": " + f.getMessage());
         }
 
+
+        // Exibe mensagem de erro sintático com linha e descrição
         catch (SyntaticError e) {
             Token token = null;
-
+            
+            // Reinicializa o analisador léxico com o texto do editor
             lexico.setInput(editor.getText());
+
+            // Busca o token que causou o erro sintático
             while (true) {
                 try {
                     token = lexico.nextToken();
+                    // Continua até encontrar o token na posição do erro
                     if(!(token != null && token.getPosition() < e.getPosition())){
                         break;
                     }
@@ -251,12 +285,14 @@ public class MainApp extends JFrame {
                     throw new RuntimeException(ex);
                 }
             }
-                           
-            //deveria separar em funcao
-            // Encontrado_______________________________________________________________________________________
+
+            // String que armazenará o token encontrado
+            // encontrado_______________________________________________________________________________________
             String encontradoStr;
+
+            // Determina qual token foi encontrado
             if (token == null) {
-                encontradoStr = "EOF";
+                encontradoStr = "EOF"; 
             } else {
                 if (token.getId() == Constants.t_cstring) {
                     encontradoStr = "constante_string";
@@ -269,8 +305,7 @@ public class MainApp extends JFrame {
                 }
             }
             
-            //deveria separar em funcao
-            // Adicionado novo 19/10/25
+            // Data alteracao 23/10/25 - Samuel
             // Esperado_______________________________________________________________________________________
             String esperadoStr = null;
             String emsg = e.getMessage();
@@ -315,6 +350,8 @@ public class MainApp extends JFrame {
             //    esperadoStr = (emsg == null || emsg.isEmpty()) ? "esperado (não especificado)" : emsg;
             //}
 
+
+            // Monta a mensagem de erro com linha, token encontrado e indicação do esperado
             String mensagemErro = "linha " + getLinha(editor.getText(), e.getPosition())
                     + ": encontrado " + encontradoStr + " " + esperadoStr;
 
@@ -325,7 +362,7 @@ public class MainApp extends JFrame {
         }
     }
 
-    //____________________________________________________________________________________________________________
+//____________________________________________________________________________________________________________
     public String classificaToken(int token) {
 
         switch (token) {
@@ -391,7 +428,7 @@ public class MainApp extends JFrame {
         }
     }
 
-    //____________________________________________________________________________________________________________
+//____________________________________________________________________________________________________________
     private int getLinha(String texto, int posicao) {
         int linha = 1; // inicia sempre na linha 1
 
@@ -404,9 +441,8 @@ public class MainApp extends JFrame {
         return linha;
     }
 
-    //____________________________________________________________________________________________________________
+//____________________________________________________________________________________________________________
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new MainApp().setVisible(true));
     }
-
 }
