@@ -287,6 +287,7 @@ public class MainApp extends JFrame {
             }
 
             // String que armazenará o token encontrado
+            // encontrado_______________________________________________________________________________________
             String encontradoStr;
 
             // Determina qual token foi encontrado
@@ -305,9 +306,85 @@ public class MainApp extends JFrame {
             }
             
 
+            // Esperado_______________________________________________________________________________________
+            String esperadoStr = null;
+            String emsg = e.getMessage();
+
+            if (emsg != null && !emsg.isEmpty()) {
+                // procura mensagem no PARSER_ERROR, do arquivo ParserConstants.java
+                int elemento = -1;
+                for (int i = 0; i < ParserConstants.PARSER_ERROR.length; i++) {
+                    if (ParserConstants.PARSER_ERROR[i] != null && ParserConstants.PARSER_ERROR[i].equals(emsg)) {
+                        elemento = i;
+                        break;
+                    }
+                }
+
+                // percorre a matriz de erro pra achar a mensagem de retorno
+                if (elemento >= ParserConstants.FIRST_NON_TERMINAL) {
+                    // Caso especial: para alguns não-terminais usamos mensagens padronizadas
+                    String nonTerminalMsg = emsg.toLowerCase();
+
+                    if (nonTerminalMsg.contains("<programa>")) {
+                        esperadoStr = "esperado begin";
+                    }
+                    else if (nonTerminalMsg.contains("<lista_de_instrucoes>") || nonTerminalMsg.contains("<lista_de_instrucoes1>")) {
+                        esperadoStr = "esperado identificador do if print read tipo";
+                    }
+                    else if (nonTerminalMsg.contains("<tipo>")) {
+                        esperadoStr = "esperado tipo";
+                    }
+                    else if (nonTerminalMsg.contains("<lista>") && !nonTerminalMsg.contains("lista_de_")) {
+                        esperadoStr = "esperado list";
+                    }
+                    else if (nonTerminalMsg.contains("lista_de_identificadores") || nonTerminalMsg.contains("<lista_de_identificadores>")) {
+                        esperadoStr = "esperado identificador";
+                    }
+                    else if (nonTerminalMsg.contains("atribuicao") || nonTerminalMsg.contains("manipulacao_lista")) {
+                        esperadoStr = "esperado = <- add delete";
+                    }
+                    else if (nonTerminalMsg.contains("<lista_de_expressoes>") ) {
+                        esperadoStr = "esperado expressao";
+                    }
+                    else if (nonTerminalMsg.contains("<expressao>") || nonTerminalMsg.contains("<expressao_>") || nonTerminalMsg.contains("<valor>") || nonTerminalMsg.contains("<relacional>") || nonTerminalMsg.contains("<relacional_>") || nonTerminalMsg.contains("<aritmetica>") || nonTerminalMsg.contains("<aritmetica_>") || nonTerminalMsg.contains("<termo>") || nonTerminalMsg.contains("<termo_>") || nonTerminalMsg.contains("<fator>") || nonTerminalMsg.contains("<fator_>")) {
+                        esperadoStr = "esperado expressão";
+                    }
+                    else {
+                        // Caso genérico: monta a lista de tokens esperados a partir da tabela
+                        int linha = elemento - ParserConstants.FIRST_NON_TERMINAL;
+                        StringBuilder sb = new StringBuilder();
+                        if (linha >= 0 && linha < ParserConstants.PARSER_TABLE.length) {
+                            int coluna = ParserConstants.PARSER_TABLE[linha].length;
+                            for (int t = 1; t <= coluna; t++) {
+                                try {
+                                    if (ParserConstants.PARSER_TABLE[linha][t-1] != -1) {
+                                        String name = tokenName(t);
+                                        if (name == null || name.isEmpty()) name = (t < ParserConstants.PARSER_ERROR.length) ? ParserConstants.PARSER_ERROR[t] : String.valueOf(t);
+                                        if (sb.length() > 0) sb.append(" ");
+                                        sb.append(name);
+                                    }
+                                } catch (Exception ignored) {
+                                    // ignora problemas de nao achar o elemento
+                                }
+                            }
+                        }
+                        if (sb.length() > 0) esperadoStr = "esperado " + sb.toString();
+                    }
+                } else if (elemento > 0) {
+                    // elemento corresponde a um terminal; garanto que mensagem contenha "esperado"
+                    esperadoStr = emsg.startsWith("esperado") ? emsg : ("esperado " + emsg);
+                }
+            }
+
+            //querem tratar caso nao encontrar nada?
+            //if (esperadoStr == null || esperadoStr.isEmpty()) {
+            //    esperadoStr = (emsg == null || emsg.isEmpty()) ? "esperado (não especificado)" : emsg;
+            //}
+
+
             // Monta a mensagem de erro com linha, token encontrado e indicação do esperado
             String mensagemErro = "linha " + getLinha(editor.getText(), e.getPosition())
-                    + ": encontrado " + encontradoStr + " esperado ...";
+                    + ": encontrado " + encontradoStr + " " + esperadoStr;
 
             mensagens.setText(mensagemErro);
         }
@@ -393,6 +470,98 @@ public class MainApp extends JFrame {
             }
         }
         return linha;
+    }
+
+    // Retorna o nome legível do token (sem a palavra "esperado")
+    private String tokenName(int t) {
+        switch (t) {
+            case Constants.DOLLAR:
+                return "EOF";
+            case Constants.t_identificador:
+                return "identificador";
+            case Constants.t_cint:
+                return "constante_int";
+            case Constants.t_cfloat:
+                return "constante_float";
+            case Constants.t_cstring:
+                return "constante_string";
+            case Constants.t_pr_add:
+                return "add";
+            case Constants.t_pr_and:
+                return "and";
+            case Constants.t_pr_begin:
+                return "begin";
+            case Constants.t_pr_bool:
+                return "bool";
+            case Constants.t_pr_count:
+                return "count";
+            case Constants.t_pr_delete:
+                return "delete";
+            case Constants.t_pr_do:
+                return "do";
+            case Constants.t_pr_elementof:
+                return "elementoOf";
+            case Constants.t_pr_else:
+                return "else";
+            case Constants.t_pr_end:
+                return "end";
+            case Constants.t_pr_false:
+                return "false";
+            case Constants.t_pr_float:
+                return "float";
+            case Constants.t_pr_if:
+                return "if";
+            case Constants.t_pr_int:
+                return "int";
+            case Constants.t_pr_list:
+                return "list";
+            case Constants.t_pr_not:
+                return "not";
+            case Constants.t_pr_or:
+                return "or";
+            case Constants.t_pr_print:
+                return "print";
+            case Constants.t_pr_read:
+                return "read";
+            case Constants.t_pr_size:
+                return "size";
+            case Constants.t_pr_string:
+                return "string";
+            case Constants.t_pr_true:
+                return "true";
+            case Constants.t_pr_until:
+                return "util";
+            case Constants.t_TOKEN_29:
+                return "+";
+            case Constants.t_TOKEN_30:
+                return "-";
+            case Constants.t_TOKEN_31:
+                return "*";
+            case Constants.t_TOKEN_32:
+                return "/";
+            case Constants.t_TOKEN_33:
+                return "==";
+            case Constants.t_TOKEN_34:
+                return "~=";
+            case Constants.t_TOKEN_35:
+                return "<";
+            case Constants.t_TOKEN_36:
+                return ">";
+            case Constants.t_TOKEN_37:
+                return "=";
+            case Constants.t_TOKEN_38:
+                return "<-";
+            case Constants.t_TOKEN_39:
+                return "(";
+            case Constants.t_TOKEN_40:
+                return ")";
+            case Constants.t_TOKEN_41:
+                return ";";
+            case Constants.t_TOKEN_42:
+                return ",";
+            default:
+                return null;
+        }
     }
 
     //____________________________________________________________________________________________________________
