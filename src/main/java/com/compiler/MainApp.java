@@ -230,7 +230,7 @@ public class MainApp extends JFrame {
         try {
             mensagens.setText("");
             sintatico.parse(lexico, semantico);
-            mensagens.setText("Compilado com sucesso");
+            mensagens.setText("programa compilado com sucesso");
             /* Token t = null;
             //revisar aqui
             while ( (t = lexico.nextToken()) != null ) {
@@ -261,8 +261,22 @@ public class MainApp extends JFrame {
         // RETORNO ERROS
 
         // Exibe mensagem de erro léxico com linha e descrição
-        catch ( LexicalError f ) {  // tratamento de erros
-            mensagens.setText("linha " +  getLinha(editor.getText(), f.getPosition()) + ": " + f.getMessage());
+        catch (LexicalError f) {
+            String mensagemErro = f.getMessage();
+            
+            // Se for erro de símbolo inválido, adiciona o símbolo na mensagem
+            if (mensagemErro.equals("símbolo inválido")) {
+                String texto = editor.getText();
+                int pos = f.getPosition();
+                
+                // Obtém o caractere na posição do erro
+                char simboloInvalido = pos < texto.length() ? texto.charAt(pos) : ' ';
+                
+                mensagemErro = String.format("%c símbolo inválido", simboloInvalido);
+            }
+            
+            mensagens.setText("linha " + getLinha(editor.getText(), f.getPosition()) + 
+                            ": " + mensagemErro);
         }
 
 
