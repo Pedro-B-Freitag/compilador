@@ -270,14 +270,11 @@ public class MainApp extends JFrame {
         catch (SyntaticError e) {
             Token token = null;
             
-            // Reinicializa o analisador léxico com o texto do editor
             lexico.setInput(editor.getText());
 
-            // Busca o token que causou o erro sintático
             while (true) {
                 try {
                     token = lexico.nextToken();
-                    // Continua até encontrar o token na posição do erro
                     if(!(token != null && token.getPosition() < e.getPosition())){
                         break;
                     }
