@@ -231,30 +231,41 @@ public class MainApp extends JFrame {
             mensagens.setText("");
             sintatico.parse(lexico, semantico);
             mensagens.setText("programa compilado com sucesso");
-            /* Token t = null;
-            //revisar aqui
-            while ( (t = lexico.nextToken()) != null ) {
-
-                int linha = getLinha(editor.getText(), t.getPosition());
-
-                mensagens.append(t.getLexeme() +
-                                " - id:" + classificaToken(t.getId()) +
-                                " - pos:" + linha + "\n");
-
-                // só escreve o lexema, necessário escrever t.getId, t.getPosition()
-
-                // t.getId () - retorna o identificador da classe (ver Constants.java)
-                // necessário adaptar, pois deve ser apresentada a classe por extenso
-                // MUDAR ID PELO NOME EXTENSO USANDO SWITCH CASE
-
-                // t.getPosition () - retorna a posição inicial do lexema no editor
-                // necessário adaptar para mostrar a linha
 
 
-                // esse código apresenta os tokens enquanto não ocorrer erro
-                // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro,
-                // necessário adaptar para atender o que foi solicitado
-            } */
+            // --------
+
+            // garante que o arquivo estava salvo (requisito do enunciado)
+            if (arquivoAtual == null) {
+                mensagens.setText("ERRO: o arquivo deve ser salvo antes de compilar.");
+                return;
+            }
+
+            // pega o código IL gerado pelo semântico
+            String codigoIL = semantico.getCodigoGerado();
+
+            // monta o nome do arquivo .il
+            String nomeBase = arquivoAtual.getName();
+            int pos = nomeBase.lastIndexOf(".");
+            if (pos > 0) nomeBase = nomeBase.substring(0, pos);
+
+            // cria o arquivo .il na mesma pasta do arquivo fonte
+            File saida = new File(arquivoAtual.getParentFile(), nomeBase + ".il");
+
+            // grava o arquivo
+            try (BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saida), StandardCharsets.UTF_8))) {
+                w.write(codigoIL);
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            statusBar.setText("Código objeto gerado: " + saida.getAbsolutePath());
+            
+
         }
 
 
