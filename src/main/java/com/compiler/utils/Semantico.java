@@ -7,6 +7,11 @@ public class Semantico implements Constants
     private Stack<String> pilha_tipos =  new Stack<>();
     private StringBuilder codigo = new StringBuilder();
     private Stack<String> pilha_rotulos = new Stack<>();
+    private int contadorRotulos = 0;
+
+    private String novoRotulo() {
+        return "R" + (contadorRotulos++);
+    }
     // O codigo é o que vai rodar
 
     public void executeAction(int action, Token token)	throws SemanticError
@@ -82,13 +87,13 @@ public class Semantico implements Constants
                 acao122();
                 break;
             case 123:
-                acao123();
+                acao123(token);
                 break;
             case 124:
-                acao124();
+                acao124(token);
                 break;
             case 125:
-                acao125();
+                acao125(token);
                 break;
             case 126:
                 acao126();
@@ -100,7 +105,7 @@ public class Semantico implements Constants
                 acao128();
                 break;
             case 129:
-                acao129();
+                acao129(token);
                 break;
             case 130:
                 acao130();
@@ -138,40 +143,44 @@ public class Semantico implements Constants
     }
     
     private void acao104 (Token token) {
-        pilha_tipos.push("float64");
+      pilha_tipos.push("float64");
         codigo.append ("ldc.r8 " + token.getLexeme() + "\n");
     }
 
     private void acao105 (Token token) {
-        pilha_tipos.push("string");
+      pilha_tipos.push("string");
         codigo.append ("ldstr " +  token.getLexeme()  + "\n");
     }
 
     private void acao106 () {//samuel
-        pilha_tipos.pop();
-        pilha_tipos.pop();
-        pilha_tipos.push("float64");
+        String t2 = pilha_tipos.pop();
+        String t1 = pilha_tipos.pop();        
+        String resultado = ("float64".equals(t1) || "float64".equals(t2)) ? "float64" : "int64";
+        pilha_tipos.push(resultado);
         codigo.append ("add\n");
     }
 
     private void acao107 () {//samuel
-        pilha_tipos.pop();
-        pilha_tipos.pop();
-        pilha_tipos.push("float64");
+        String t2 = pilha_tipos.pop();
+        String t1 = pilha_tipos.pop();
+        String resultado = ("float64".equals(t1) || "float64".equals(t2)) ? "float64" : "int64";
+        pilha_tipos.push(resultado);
         codigo.append ("sub\n");
     }
 
     private void acao108 () {//samuel
-        pilha_tipos.pop();
-        pilha_tipos.pop();
-        pilha_tipos.push("float64");
+        String t2 = pilha_tipos.pop();
+        String t1 = pilha_tipos.pop();
+        String resultado = ("float64".equals(t1) || "float64".equals(t2)) ? "float64" : "int64";
+        pilha_tipos.push(resultado);
         codigo.append ("mul\n");
     }
 
     private void acao109 () {//samuel
-        pilha_tipos.pop();
-        pilha_tipos.pop();
-        pilha_tipos.push("float64");
+        String t2 = pilha_tipos.pop();
+        String t1 = pilha_tipos.pop();
+        String resultado = ("float64".equals(t1) || "float64".equals(t2)) ? "float64" : "int64";
+        pilha_tipos.push(resultado);
         codigo.append ("div\n");
     }
 
@@ -189,7 +198,7 @@ public class Semantico implements Constants
 
     private void acao113 () {//samuel
         pilha_tipos.pop();
-        pilha_tipos.pop();
+        pilha_tipos.pop();    
         pilha_tipos.push("int32");
         codigo.append ("and\n");
     }
@@ -207,7 +216,7 @@ public class Semantico implements Constants
     private void acao116 () {
     }
 
-    private void acao117 () {//samuel
+    private void acao117 () {//samuel    
         codigo.append ("ldc.i4 0\n");
         codigo.append ("ceq\n");
     }
@@ -235,33 +244,79 @@ public class Semantico implements Constants
       
     }
 
-    private void acao123 () {
+    private void acao123 (Token token) {
       
     }
 
-    private void acao124 () {
-      
+    private void acao124(Token token) {
+        pilha_tipos.push("string");
+        codigo.append("ldstr ").append(token.getLexeme()).append("\n");
+        codigo.append("call void [mscorlib]System.Console::Write(string)\n");
     }
 
-    private void acao125 () {
-      
+
+    private void acao125(Token token) throws SemanticError {
+        String tipoCond = pilha_tipos.pop();
+
+        if (!tipoCond.equals("bool")) {
+            throw new SemanticError(
+                "expressão incompatível em comando de seleção",
+                token.getPosition()
+            );
+        }
+
+        String rotulo = novoRotulo();
+
+        pilha_rotulos.push(rotulo);
+
+        codigo.append("brfalse ").append(rotulo).append("\n");
     }
 
-    private void acao126 () {
-      
+
+    private void acao126() {
+        String rotulo = pilha_rotulos.pop();
+        codigo.append(rotulo).append(":\n");
     }
 
-    private void acao127 () {
-      
+
+    private void acao127() {
+        String rotulo2 = novoRotulo();
+
+        codigo.append("br ").append(rotulo2).append("\n");
+
+        String rotulo1 = pilha_rotulos.pop();
+
+        codigo.append(rotulo1).append(":\n");
+
+        pilha_rotulos.push(rotulo2);
     }
 
-    private void acao128 () {
-      
+
+
+    private void acao128() {
+        String rotulo = novoRotulo();
+        codigo.append(rotulo).append(":\n");
+        pilha_rotulos.push(rotulo);
     }
 
-    private void acao129 () {
-      
+
+
+    private void acao129(Token token) throws SemanticError {
+        String tipo = pilha_tipos.pop();
+
+        if (!tipo.equals("bool")) {
+            throw new SemanticError(
+                "expressão incompatível em comando de repetição",
+                token.getPosition()
+            );
+        }
+
+        String rotulo = pilha_rotulos.pop();
+
+        codigo.append("brfalse ").append(rotulo).append("\n");
     }
+
+
 
     private void acao130 () {
       
