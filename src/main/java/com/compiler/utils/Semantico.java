@@ -143,33 +143,45 @@ public class Semantico implements Constants
     }
     
     private void acao104 (Token token) {
-      pilha_tipos.push("float64");
+        pilha_tipos.push("float64");
         codigo.append ("ldc.r8 " + token.getLexeme() + "\n");
     }
 
     private void acao105 (Token token) {
-      pilha_tipos.push("string");
+        pilha_tipos.push("string");
         codigo.append ("ldstr " +  token.getLexeme()  + "\n");
     }
 
-    private void acao106 () {
-      
+    private void acao106 () {//samuel
+        pilha_tipos.pop();
+        pilha_tipos.pop();
+        pilha_tipos.push("float64");
+        codigo.append ("add\n");
     }
 
-    private void acao107 () {
-      
+    private void acao107 () {//samuel
+        pilha_tipos.pop();
+        pilha_tipos.pop();
+        pilha_tipos.push("float64");
+        codigo.append ("sub\n");
     }
 
-    private void acao108 () {
-      
+    private void acao108 () {//samuel
+        pilha_tipos.pop();
+        pilha_tipos.pop();
+        pilha_tipos.push("float64");
+        codigo.append ("mul\n");
     }
 
-    private void acao109 () {
-      
+    private void acao109 () {//samuel
+        pilha_tipos.pop();
+        pilha_tipos.pop();
+        pilha_tipos.push("float64");
+        codigo.append ("div\n");
     }
 
-    private void acao110 () {
-      
+    private void acao110 () { //samuel
+        codigo.append ("neg\n");
     }
 
     private void acao111 () {
@@ -180,24 +192,29 @@ public class Semantico implements Constants
       
     }
 
-    private void acao113 () {
-      
+    private void acao113 () {//samuel
+        pilha_tipos.pop();
+        pilha_tipos.pop();
+        pilha_tipos.push("int32");
+        codigo.append ("and\n");
     }
 
-    private void acao114 () {
-      
+    private void acao114 () {//samuel
+        pilha_tipos.pop();
+        pilha_tipos.pop();
+        pilha_tipos.push("int32");
+        codigo.append ("or\n");
     }
 
     private void acao115 () {
-      
     }
 
     private void acao116 () {
-      
     }
 
-    private void acao117 () {
-      
+    private void acao117 () {//samuel
+        codigo.append ("ldc.i4 0\n");
+        codigo.append ("ceq\n");
     }
 
     private void acao118() {
