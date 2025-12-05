@@ -185,7 +185,9 @@ public class Semantico implements Constants
     }
 
     private void acao110 () { //samuel
-        codigo.append ("neg\n");
+        codigo.append("ldc.i8 -1\n");
+        codigo.append("conv.r8\n");
+        codigo.append("mul\n");
     }
 
     private void acao111 () {
@@ -198,15 +200,15 @@ public class Semantico implements Constants
 
     private void acao113 () {//samuel
         pilha_tipos.pop();
-        pilha_tipos.pop();    
-        pilha_tipos.push("int32");
-        codigo.append ("and\n");
+        pilha_tipos.pop();
+        pilha_tipos.push("bool");
+        codigo.append("and\n");
     }
 
     private void acao114 () {//samuel
         pilha_tipos.pop();
         pilha_tipos.pop();
-        pilha_tipos.push("int32");
+        pilha_tipos.push("bool");
         codigo.append ("or\n");
     }
 
