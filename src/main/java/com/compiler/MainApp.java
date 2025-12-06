@@ -234,22 +234,17 @@ public class MainApp extends JFrame {
 
 
             // --------
-
-            // garante que o arquivo estava salvo (requisito do enunciado)
             if (arquivoAtual == null) {
                 mensagens.setText("ERRO: o arquivo deve ser salvo antes de compilar.");
                 return;
             }
 
-            // pega o código IL gerado pelo semântico
             String codigoIL = semantico.getCodigoGerado();
 
-            // monta o nome do arquivo .il
             String nomeBase = arquivoAtual.getName();
             int pos = nomeBase.lastIndexOf(".");
             if (pos > 0) nomeBase = nomeBase.substring(0, pos);
 
-            // cria o arquivo .il na mesma pasta do arquivo fonte
             File saida = new File(arquivoAtual.getParentFile(), nomeBase + ".il");
 
             // grava o arquivo
@@ -328,6 +323,11 @@ public class MainApp extends JFrame {
         }
         catch ( SemanticError e ) {
             // trata erros semânticos na parte 4
+            int linha = getLinha(editor.getText(), e.getPosition());
+
+            mensagens.setText(
+                    "linha " + linha + ": " + e.getMessage()
+            );
         }
     }
 
